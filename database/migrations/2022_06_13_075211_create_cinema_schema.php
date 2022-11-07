@@ -36,7 +36,59 @@ class CreateCinemaSchema extends Migration
      */
     public function up()
     {
-        throw new \Exception('implement in coding task 4, you can ignore this exception if you are just running the initial migrations.');
+        Schema::create('cinemas', function($table) {
+            $table->increments('id');
+            $table->string('name');
+            $table->timestamps();
+        });
+
+        Schema::create('showrooms', function($table) {
+            $table->increments('id');
+            $table->string('name');
+            $table->foreign('cinema_id')->references('id')->on('cinemas')->onDelete('cascade');
+            $table->timestamps();
+        });
+
+        Schema::create('seats', function($table) {
+            $table->increments('id');
+            $table->string('type'); // can be normal/vip seat/couple seat/super vip etc
+            $table->integer('quantity');
+            $table->foreign('showroom_id')->references('id')->on('showrooms')->onDelete('cascade');
+            $table->timestamps();
+        });
+
+        Schema::create('films', function($table) {
+            $table->increments('id');
+            $table->string('name');
+            $table->timestamps();
+        });
+
+        Schema::create('film_showroom', function($table) {
+            $table->increments('id');
+            $table->dateTime('start');
+            $table->dateTime('end');
+            $table->foreign('film_id')->references('id')->on('films')->onDelete('cascade');
+            $table->foreign('showroom_id')->references('id')->on('showrooms')->onDelete('cascade');
+            $table->timestamps();
+        });
+
+        Schema::create('film_seat', function($table) {
+            $table->increments('id');
+            $table->decimal('price', 8, 2);
+            $table->foreign('film_id')->references('id')->on('films')->onDelete('cascade');
+            $table->foreign('seat_id')->references('id')->on('seats')->onDelete('cascade');
+            $table->timestamps();
+        });
+
+        Schema::create('seats_booked', function($table) {
+            $table->increments('id');
+            $table->decimal('price', 8, 2);     // take over from film_seat table, so if price is changed on the seats table, it won't impact the already booked seats price
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('film_id')->references('id')->on('films')->onDelete('cascade');
+            $table->foreign('showroom_id')->references('id')->on('showrooms')->onDelete('cascade');
+            $table->foreign('seat_id')->references('id')->on('seats')->onDelete('cascade');
+            $table->timestamps();
+        });
     }
 
     /**
